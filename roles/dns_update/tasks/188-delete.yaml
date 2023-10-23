@@ -1,5 +1,4 @@
 ---
-
 - name: Delete forward and reverse DNS entry
   become: true
   block:
@@ -7,13 +6,13 @@
       ansible.builtin.lineinfile:
         path: /var/named/{{ env.cluster.networking.metadata_name }}.db
         state: absent
-        regexp: "^{{ param_dns_hostname }}.{{ env.cluster.networking.metadata_name }}.{{ env.cluster.networking.base_domain }}"
+        regexp: ^{{ param_dns_hostname }}.{{ env.cluster.networking.metadata_name }}.{{ env.cluster.networking.base_domain }}
 
     - name: Delete forward DNS using ip
       ansible.builtin.lineinfile:
         path: /var/named/{{ env.cluster.networking.metadata_name }}.db
         state: absent
-        regex: "A {{ param_dns_ip }}"
+        regex: A {{ param_dns_ip }}
 
     - name: Delete reverse DNS using hostname
       ansible.builtin.lineinfile:

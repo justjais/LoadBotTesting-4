@@ -1,14 +1,14 @@
 ---
 - name: Check if SSH key exists
   stat:
-    path: "~/.ssh/{{ env.ansible_key_name }}.pub"
+    path: ~/.ssh/{{ env.ansible_key_name }}.pub
   register: ssh_key
 
 - name: Generate an OpenSSH keypair with the default values (4096 bits, RSA)
   community.crypto.openssh_keypair:
-    path: "~/.ssh/{{ env.ansible_key_name }}"
+    path: ~/.ssh/{{ env.ansible_key_name }}
     passphrase: ""
-    comment: "Ansible-OpenShift-Provisioning SSH key"
+    comment: Ansible-OpenShift-Provisioning SSH key
     regenerate: full_idempotence
   register: ssh_key_creation
   when: ssh_key.stat.exists == false
@@ -19,7 +19,7 @@
     state: directory
 
 - name: Install Packages on kvm_host
-  yum: 
+  yum:
     name:
       - "{{ item }}"
     state: present
@@ -33,10 +33,10 @@
     state: present
   loop: "{{ env.pkgs.hypershift }}"
 
-- name: Check if OC installed 
+- name: Check if OC installed
   command: oc
   register: oc_installed
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Download OC Client
   get_url:
@@ -62,5 +62,5 @@
     insertbefore: BOF
     line: nameserver {{ hypershift.mgmt_cluster_nameserver }}
 
-- name: Login to Management Cluster 
+- name: Login to Management Cluster
   command: oc login {{ api_server }} -u {{ user_name }} -p {{ password }} --insecure-skip-tls-verify=true

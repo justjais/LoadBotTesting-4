@@ -1,10 +1,9 @@
 ---
-
 - name: Install ansible-kubernetes module
   pip:
     name:
-    - kubernetes
-    - openshift
+      - kubernetes
+      - openshift
     extra_args: --ignore-installed PyYAML
 
 - name: Install Packages on bastion
@@ -28,94 +27,94 @@
     path: /etc/haproxy
     state: directory
 
-- name: create /etc/haproxy/haproxy.cfg 
+- name: create /etc/haproxy/haproxy.cfg
   template:
     src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
 
-- name: Get the number of Management Cluster Worker Nodes 
+- name: Get the number of Management Cluster Worker Nodes
   shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}' | wc -l
   register: mgmt_workers_count
   changed_when: false
 
-- name: Get the IPs of Management Cluster Workers 
-  shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}' 
+- name: Get the IPs of Management Cluster Workers
+  shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}'
   register: mgmt_workers
   changed_when: false
 
-- name: Add Management Cluster Worker IPs to Haproxy 
+- name: Add Management Cluster Worker IPs to Haproxy
   lineinfile:
     path: /etc/haproxy/haproxy.cfg
     line: "    server worker-{{item}} {{ mgmt_workers.stdout_lines[item]}}"
   loop: "{{ range(mgmt_workers_count.stdout|int) | list }}"
- 
-- name: allow http traffic 
+
+- name: allow http traffic
   firewalld:
     service: http
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: allow https traffic 
+- name: allow https traffic
   firewalld:
     service: https
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
 - name: allow traffic at port 443
   firewalld:
     port: 443/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: allow traffic at port 80 
+- name: allow traffic at port 80
   firewalld:
     port: 80/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: allow traffic at port 6443 
+- name: allow traffic at port 6443
   firewalld:
     port: 6443/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: allow traffic at ports 30000-33000 
+- name: allow traffic at ports 30000-33000
   firewalld:
     port: 30000-33000/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: turn on haproxy_connect_any 
-  ansible.posix.seboolean: 
+- name: turn on haproxy_connect_any
+  ansible.posix.seboolean:
     name: haproxy_connect_any
     persistent: true
     state: true
 
-- name: restart haproxy 
+- name: restart haproxy
   service:
     name: haproxy.service
     state: restarted

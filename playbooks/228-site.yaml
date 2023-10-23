@@ -1,7 +1,6 @@
 # Master playbook. If you want to do everything all in one, use this.
 ---
-
-- import_playbook: 0_setup.yaml
+- import_playbook: "0_setup.yaml"
 - import_playbook: 1_create_lpar.yaml
 - import_playbook: 2_create_kvm_host.yaml
 - import_playbook: 3_setup_kvm_host.yaml

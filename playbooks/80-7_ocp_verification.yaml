@@ -1,5 +1,4 @@
 ---
-
 # Complete OpenShift verification
 - name: 7 OCP verification
   hosts: bastion
