@@ -4,19 +4,19 @@
     name: httpd
     state: latest
 
-- name: bind httpd to port 8080 
+- name: bind httpd to port 8080
   lineinfile:
     dest: /etc/httpd/conf/httpd.conf
     regexp: ^Listen 80
     line: Listen 8080
-    
-- name: bind https to port 8443 
+
+- name: bind https to port 8443
   lineinfile:
     dest: /etc/httpd/conf.d/ssl.conf
     regexp: ^Listen 443 https
     line: Listen 8443 https
-    
-- name: allow traffic at 8080 for apache 
+
+- name: allow traffic at 8080 for apache
   tags: firewall
   firewalld:
     port: 8080/tcp
@@ -24,10 +24,10 @@
     state: enabled
     permanent: true
   with_items:
-  - internal
-  - public
-  
-- name: allow traffic at 8443 for apache 
+    - internal
+    - public
+
+- name: allow traffic at 8443 for apache
   tags: firewall
   firewalld:
     port: 8443/tcp
@@ -35,11 +35,12 @@
     state: enabled
     permanent: true
   with_items:
-  - internal
-  - public
+    - internal
+    - public
 
-- name: Download ipxe script 
-  shell: curl -k -L $(oc -n {{ hypershift.hcp.clusters_namespace }}-{{ hypershift.hcp.hosted_cluster_name }} get InfraEnv {{ hypershift.hcp.hosted_cluster_name }} -ojsonpath="{.status.bootArtifacts.ipxeScript}")
+- name: Download ipxe script
+  shell: curl -k -L $(oc -n {{ hypershift.hcp.clusters_namespace }}-{{ hypershift.hcp.hosted_cluster_name }} get InfraEnv {{ hypershift.hcp.hosted_cluster_name }}
+    -ojsonpath="{.status.bootArtifacts.ipxeScript}")
   register: ipxe_script
 
 - name: Get URL for rootfs
@@ -52,11 +53,11 @@
     dest: /var/www/html/rootfs.img
     validate_certs: false
 
-- name: restart httpd 
+- name: restart httpd
   service:
     name: httpd.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Restart firewalld.service
   service:

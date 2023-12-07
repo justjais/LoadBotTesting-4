@@ -1,5 +1,4 @@
 ---
-
 #- name: Create a new partition.
 #  tags: configure_storage, storage_group_2, part
 #  community.general.parted:
@@ -51,7 +50,7 @@
     group: qemu
     seuser: system_u
     setype: virt_image_t
-    mode: '0770'
+    mode: "0770"
     recurse: true
 
 - name: Ensure qemu has execute permissions for all parent directories of the directory that will be used as a storage pool for this cluster.
@@ -64,11 +63,11 @@
     recurse: false
   loop: "{{ range( 0, storage.pool_path.split('/') | length + 1 ) }}"
   loop_control:
-    extended: yes
+    extended: true
     index_var: i
     extended_allitems: false
     label: "{{ storage.pool_path.split('/')[:i] | join('/') }}"
-  when: "storage.pool_path.split('/')[:i] | join('/') != ''"
+  when: storage.pool_path.split('/')[:i] | join('/') != ''
 
 - name: Define a new storage pool
   tags: configure_storage, pool
@@ -87,4 +86,4 @@
   tags: configure_storage, pool
   community.libvirt.virt_pool:
     name: "{{ env.cluster.networking.metadata_name }}-vdisk"
-    autostart: yes
+    autostart: true

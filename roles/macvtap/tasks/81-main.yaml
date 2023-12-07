@@ -1,5 +1,4 @@
 ---
-
 - name: Set up macvtap bridge configuration xml from template to KVM host
   tags: macvtap
   community.libvirt.virt_net:
@@ -16,5 +15,5 @@
 - name: Set macvtap bridge to autostart
   tags: macvtap
   community.libvirt.virt_net:
-    autostart: yes
+    autostart: true
     name: "{{ env.bridge_name }}"

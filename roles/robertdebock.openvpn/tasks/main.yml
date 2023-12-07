@@ -3,7 +3,7 @@
 
 - name: import assert.yml
   ansible.builtin.import_tasks: assert.yml
-  run_once: True
+  run_once: true
   delegate_to: localhost
 
 - name: install openvpn packages
@@ -19,4 +19,4 @@
   ansible.builtin.service:
     name: "{{ openvpn_service }}"
     state: started
-    enabled: yes
+    enabled: true

@@ -1,5 +1,4 @@
 ---
-
 - name: Copy ssh key to jumphost if network is NAT and jumphost defined, and add jumphost section to ssh config.
   hosts: localhost
   tags: ssh, ssh_copy_id, section_1
@@ -10,8 +9,8 @@
   vars:
     ssh_target: ["{{ env.jumphost.ip }}", "{{ env.jumphost.user }}", "{{ env.jumphost.pass }}", "{{ path_to_key_pair }}"]
   roles:
-    - { role: ssh_copy_id, tags: ssh_copy_id, ssh, when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
-    - { role: ssh_add_config, tags: ssh_copy_id, ssh, when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
+    - { role: ssh_copy_id, tags: ssh_copy_id, ssh: !!null "", when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
+    - { role: ssh_add_config, tags: ssh_copy_id, ssh: !!null "", when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
 
 - name: Configure jumphost if network mode == 'NAT'
   hosts: jumphost
@@ -20,7 +19,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}","{{ env.jumphost.path_to_keypair }}"]
+    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}", "{{ env.jumphost.path_to_keypair }}"]
   pre_tasks:
     - name: Generate an OpenSSH keypair with the default values (4096 bits, RSA), if using jumphost for NAT.
       tags: ssh_key_gen, ssh, section_1
@@ -41,7 +40,7 @@
             name: expect
           when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none )
   roles:
-    - { role: ssh_copy_id, ssh, when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
+    - { role: ssh_copy_id, ssh: !!null "", when: (env.network_mode | upper == "NAT") and ( env.jumphost.ip is not none ) }
   post_tasks:
     - meta: clear_facts
 
@@ -52,7 +51,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}","{{ path_to_key_pair }}"]
+    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}", "{{ path_to_key_pair }}"]
   roles:
     - ssh_copy_id
 
@@ -84,7 +83,7 @@
   tags: services, section_2, openvpn
   become: true
   vars:
-    openvpn_role: "server"
+    openvpn_role: server
   roles:
     #- { role: robertdebock.bootstrap, tags: openvpn, when: env.z.high_availability == True }
     - { role: robertdebock.epel, tags: openvpn, when: env.z.high_availability == True }
@@ -110,7 +109,7 @@
       fetch:
         src: /etc/openvpn/easy-rsa/pki/{{ item }}
         dest: tmp/
-        flat: yes
+        flat: true
       loop:
         - ca.crt
         - issued/client.crt
@@ -124,7 +123,7 @@
   become: true
   gather_facts: false
   vars:
-    openvpn_role: "client"
+    openvpn_role: client
     openvpn_client_server: "{{ env.bastion.networking.ip }}"
   pre_tasks:
     - name: Gather facts.
@@ -136,7 +135,7 @@
       file:
         state: directory
         path: /etc/openvpn/client/{{ item }}
-        mode: '700'
+        mode: "700"
       loop:
         - issued
         - private
@@ -147,7 +146,7 @@
       copy:
         src: tmp/{{ item }}
         dest: /etc/openvpn/client/{{ item }}
-        mode: '600'
+        mode: "600"
       loop:
         - ca.crt
         - client.crt

@@ -9,7 +9,7 @@
     ssh_key: "{{ ssh_output.stdout_lines[0] }}"
 
 - name: Create Directory for images and bastion.ks
-  file: 
+  file:
     path: /home/libvirt/images/
     recurse: true
     state: directory
@@ -23,18 +23,18 @@
   lineinfile:
     path: /home/libvirt/bastion.ks
     state: absent
-    regexp: '^network*'
+    regexp: ^network*
 
 - name: Adding root password for bastion to bastion.ks
   lineinfile:
     path: /home/libvirt/bastion.ks
-    insertafter: '^lang.*'
-    line: "rootpw {{ bastion_root_pw }}"
+    insertafter: ^lang.*
+    line: rootpw {{ bastion_root_pw }}
 
 - name: Adding ssh key to bastion
   blockinfile:
     path: /home/libvirt/bastion.ks
-    insertafter: '^echo.*'
+    insertafter: ^echo.*
     block: |
       mkdir -p /root/.ssh
       echo "{{ ssh_key }}" > /root/.ssh/authorized_keys
@@ -44,7 +44,7 @@
 - name: Create qemu image for bastion
   command: qemu-img create -f qcow2 /home/libvirt/images/{{ hypershift.hcp.hosted_cluster_name }}-bastion.qcow2 100G
 
-- name: Create bastion 
+- name: Create bastion
   shell: |
     virt-install \ 
     --name {{ hypershift.hcp.hosted_cluster_name }}-bastion \
@@ -64,5 +64,5 @@
     minutes: 1
 
 - name: Add route to bastion from kvm_host
-  command: "ip route add {{ hypershift.bastion_hypershift }} via {{ hypershift.gateway }}"
-  ignore_errors: yes
+  command: ip route add {{ hypershift.bastion_hypershift }} via {{ hypershift.gateway }}
+  ignore_errors: true
