@@ -1,5 +1,4 @@
 ---
-
 - name: Register server with Red Hat
   tags: attach_subscription
   community.general.redhat_subscription:

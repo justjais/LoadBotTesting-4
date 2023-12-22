@@ -1,3 +1,4 @@
+---
 # Assume we have an existing ftp/http server already
 - name: 4 create bastion
   hosts: kvm_host[0]

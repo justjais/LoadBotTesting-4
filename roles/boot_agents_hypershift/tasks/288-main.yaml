@@ -1,6 +1,6 @@
 ---
 - name: Create qemu image for agents
-  command: "qemu-img create -f qcow2 /home/libvirt/images/{{ hypershift.hcp.hosted_cluster_name }}-agent{{ item }}.qcow2 {{ hypershift.agents_parms.disk_size }}"
+  command: qemu-img create -f qcow2 /home/libvirt/images/{{ hypershift.hcp.hosted_cluster_name }}-agent{{ item }}.qcow2 {{ hypershift.agents_parms.disk_size }}
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
 
 - name: Boot Agents
@@ -27,4 +27,3 @@
   async: 3600
   poll: 0
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
-

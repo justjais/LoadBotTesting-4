@@ -20,20 +20,21 @@
 
 - name: Get OCP temporary password
   tags: wait_for_install_complete
-  command: "cat /root/ocpinst/auth/kubeadmin-password"
+  command: cat /root/ocpinst/auth/kubeadmin-password
   register: ocp_passwd
   changed_when: false
 
-- name: "Additional step, if using NAT"
+- name: Additional step, if using NAT
   tags: wait_for_install_complete
   debug:
-    msg: "NAT USERS ONLY: Create SSH tunnel to cluster, i.e run command in terminal window from controller: 'sshuttle -r {{ env.bastion.access.user }}@{{ env.bastion.networking.ip }} 192.168.122.0/15 --dns'"
+    msg: "NAT USERS ONLY: Create SSH tunnel to cluster, i.e run command in terminal window from controller: 'sshuttle -r {{ env.bastion.access.user }}@{{ env.bastion.networking.ip
+      }} 192.168.122.0/15 --dns'"
   when: ( env.network_mode | upper == "NAT" )
   changed_when: false
 
 - name: Congratulations! OpenShift installation complete. Use the information below for first-time login via web browser.
   tags: wait_for_install_complete
-  command: "echo {{ item }}"
+  command: echo {{ item }}
   loop:
     - " URL: {{ ocp_url }} "
     - " Username: kubeadmin "

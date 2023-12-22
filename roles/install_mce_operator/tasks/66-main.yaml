@@ -1,22 +1,22 @@
 ---
-- name: Check if multicluster-engine Namespace exists 
+- name: Check if multicluster-engine Namespace exists
   k8s_info:
     api_version: v1
     kind: Namespace
     name: "{{ hypershift.asc.mce_namespace }}"
   register: namespace_check
-  ignore_errors: yes
+  ignore_errors: true
 
-- name: Create multicluster-engine  Namespace 
+- name: Create multicluster-engine  Namespace
   k8s:
     api_version: v1
     kind: Namespace
     name: "{{ hypershift.asc.mce_namespace }}"
     state: present
-  when: namespace_check.resources | length == 0 
+  when: namespace_check.resources | length == 0
 
 - name: Create OperatorGroup.yaml
-  template: 
+  template:
     src: OperatorGroup.yaml.j2
     dest: /root/ansible_workdir/OperatorGroup.yaml
 
@@ -54,11 +54,11 @@
   command: oc apply -f /root/ansible_workdir/MultiClusterEngine.yaml
 
 - name: Wait for MCE to be Available
-  shell: oc get mce --no-headers | awk  '{print $2}' 
+  shell: oc get mce --no-headers | awk  '{print $2}'
   register: mce_status
   until: mce_status.stdout == "Available"
   retries: 40
-  delay: 10 
+  delay: 10
 
 - name: Enable hypershift-preview component in MCE
   command: oc patch mce {{ hypershift.mce.instance_name }} -p '{"spec":{"overrides":{"components":[{"name":"hypershift-preview","enabled":true}]}}}' --type merge
@@ -68,7 +68,7 @@
     src: ClusterImageSet.yaml.j2
     dest: /root/ansible_workdir/ClusterImageSet.yaml
 
-- name: Deploy ClusterImageSet 
+- name: Deploy ClusterImageSet
   command: oc apply -f /root/ansible_workdir/ClusterImageSet.yaml
 
 - name: Create Provisioning.yaml
@@ -76,5 +76,5 @@
     src: Provisioning.yaml.j2
     dest: /root/ansible_workdir/Provisioning.yaml
 
-- name: Deploy Provisioning 
+- name: Deploy Provisioning
   command: oc apply -f /root/ansible_workdir/Provisioning.yaml

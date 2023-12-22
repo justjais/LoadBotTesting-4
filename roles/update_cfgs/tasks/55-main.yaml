@@ -1,11 +1,10 @@
 ---
-
 ### Setup
 
 - name: Create directory for KVM host's RHEL configuration files for installation.
   tags: update_cfgs
   file:
-    path: '{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}'
+    path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}"
     state: directory
 
 - name: Clean-up old cfg files.
@@ -16,15 +15,15 @@
 
 - name: Split iso_mount_dir variable on / for use in template
   tags: update_cfgs
-  set_fact: 
-    ins_dir:  "{{ env.file_server.iso_mount_dir.split('/') }}"
+  set_fact:
+    ins_dir: "{{ env.file_server.iso_mount_dir.split('/') }}"
 
 - name: Template RHEL configuration files out to FTP server.
   tags: update_cfgs
   template:
     src: "{{ item }}.j2"
     dest: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/{{ item }}"
-  loop: 
+  loop:
     - kvm_host.prm
     - kvm_host.ins
     - kvm_host.cfg
@@ -34,12 +33,12 @@
 - name: Add FCP storage boot drive triplet info to KVM host's RHEL prm configuration file.
   tags: update_cfgs
   lineinfile:
-    path: '{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.prm'
-    insertafter: 'inst.repo'
+    path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.prm"
+    insertafter: inst.repo
     line: rd.zfcp=0.0.{{ lpar.storage_group_1.dev_num }},0x{{ lpar.storage_group_1.storage_wwpn[i] }},0x0000000000000000
   with_sequence: start=0 end={{(lpar.storage_group_1.storage_wwpn | length) - 1}} stride=1
   loop_control:
-    extended: yes
+    extended: true
     index_var: i
 
 - name: Create list from nic1 device number, incremented twice for input in KVM host prm file for boot
@@ -52,8 +51,8 @@
 - name: Add network device information to KVM host's RHEL prm file for boot
   lineinfile:
     path: "{{env.file_server.cfgs_dir}}/{{ networking.hostname }}/kvm_host.prm"
-    insertafter: "ro ramdisk_size"
-    line: "rd.znet=qeth,0.0.{{nic_child_list[0]}},0.0.{{nic_child_list[1]}},0.0.{{nic_child_list[2]}},layer2=1,portno={{ lpar.networking.nic.card1.port }}"
+    insertafter: ro ramdisk_size
+    line: rd.znet=qeth,0.0.{{nic_child_list[0]}},0.0.{{nic_child_list[1]}},0.0.{{nic_child_list[2]}},layer2=1,portno={{ lpar.networking.nic.card1.port }}
 
 - name: Create hash from KVM host root password to input in kickstart file
   tags: update_cfgs
@@ -64,8 +63,8 @@
   tags: update_cfgs
   lineinfile:
     path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.cfg"
-    insertafter: "Root password"
-    line: "rootpw --iscrypted {{ root_pass_hash.stdout }}"
+    insertafter: Root password
+    line: rootpw --iscrypted {{ root_pass_hash.stdout }}
 
 - name: Create hash from KVM user password to input in kickstart file
   tags: update_cfgs
@@ -76,21 +75,25 @@
   tags: update_cfgs
   lineinfile:
     path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.cfg"
-    insertafter: "Users and Groups Definitions"
-    line: "user --groups=wheel,kvm,libvirt --name={{ ansible_user }} --password={{ user_pass_hash.stdout }} --iscrypted"
+    insertafter: Users and Groups Definitions
+    line: user --groups=wheel,kvm,libvirt --name={{ ansible_user }} --password={{ user_pass_hash.stdout }} --iscrypted
 
 - name: Add network information in KVM hosts's RHEL kickstart file when there is only one network card defined.
   tags: update_cfgs
   lineinfile:
     path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.cfg"
-    insertafter: "Network information"
-    line: network  --bootproto=static --device={{ networking.device1 }} --gateway={{ networking.gateway }} --ip={{ networking.ip }} --nameserver={{ networking.nameserver1 }} {{ ('--nameserver=' + networking.nameserver2) if networking.nameserver2 is defined else '' }} --netmask={{ networking.subnetmask }} --noipv6 --activate --hostname={{ networking.hostname }}
+    insertafter: Network information
+    line: network  --bootproto=static --device={{ networking.device1 }} --gateway={{ networking.gateway }} --ip={{ networking.ip }} --nameserver={{ networking.nameserver1
+      }} {{ ('--nameserver=' + networking.nameserver2) if networking.nameserver2 is defined else '' }} --netmask={{ networking.subnetmask }} --noipv6 --activate --hostname={{
+      networking.hostname }}
   when: lpar.networking.nic.card2 is not defined
 
 - name: Add network information in KVM hosts's RHEL kickstart file when there are two network cards defined.
   tags: update_cfgs
   lineinfile:
     path: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.cfg"
-    insertafter: "Network information"
-    line: "network  --bootproto=static --device={{ networking.device1 }} --bondslaves={{ lpar.networking.nic.card1.name }},{{ lpar.networking.nic.card2.name }}  --bondopts=mode=active-backup;primary={{ lpar.networking.nic.card1 }} --gateway={{ networking.gateway }} --ip={{ networking.ip }} --nameserver={{ networking.nameserver1 }} {{ ('--nameserver=' + networking.nameserver2) if networking.nameserver2 is defined else '' }} --netmask={{ networking.subnetmask }} --noipv6 --activate --hostname={{ networking.hostname }}"
+    insertafter: Network information
+    line: network  --bootproto=static --device={{ networking.device1 }} --bondslaves={{ lpar.networking.nic.card1.name }},{{ lpar.networking.nic.card2.name }}  --bondopts=mode=active-backup;primary={{
+      lpar.networking.nic.card1 }} --gateway={{ networking.gateway }} --ip={{ networking.ip }} --nameserver={{ networking.nameserver1 }} {{ ('--nameserver=' + networking.nameserver2)
+      if networking.nameserver2 is defined else '' }} --netmask={{ networking.subnetmask }} --noipv6 --activate --hostname={{ networking.hostname }}
   when: lpar.networking.nic.card2.name is defined

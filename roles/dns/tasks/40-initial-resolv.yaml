@@ -1,3 +1,4 @@
+---
 - name: Template out bastion's resolv.conf file for initial installation.
   tags: resolv
   ansible.builtin.template:

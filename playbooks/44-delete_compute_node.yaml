@@ -29,7 +29,7 @@
               - "Execute: 'ansible-playbook playbooks/delete_compute_node.yaml --extra-vars \"@extra-cnode.yml\"'"
         - name: Abort playbook
           ansible.builtin.fail:
-            msg: "See above error!"
+            msg: See above error!
   roles:
     - role: delete_compute_node
       # Some tasks will be delegated to the bastion host and target KVM host
