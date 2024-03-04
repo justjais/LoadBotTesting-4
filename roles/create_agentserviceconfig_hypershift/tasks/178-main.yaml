@@ -4,7 +4,7 @@
   register: ocp_release_version
 
 - name: Create Config map mirror-config ( For updating AgentServiceConfig with the brew mirror information )
-  template: 
+  template:
     src: mirror-config.yml.j2
     dest: /root/ansible_workdir/mirror-config.yaml
 
@@ -12,7 +12,7 @@
   shell: oc apply -f /root/ansible_workdir/mirror-config.yaml
 
 - name: Create agenterviceconfig.yaml
-  template: 
+  template:
     src: agent_service_config.yaml.j2
     dest: /root/ansible_workdir/agentserviceconfig.yaml
 

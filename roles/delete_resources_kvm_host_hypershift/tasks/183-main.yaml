@@ -1,7 +1,6 @@
 ---
-
 - name: Destroy Agent VMs
-  command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }} 
+  command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }}
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
 
 - name: Undefine Agents

@@ -1,5 +1,4 @@
 ---
-
 - name: Delete compute node from OCP cluster and print command output
   tags: delete_compute_node
   delegate_to: "{{ groups['bastion'][0] }}"

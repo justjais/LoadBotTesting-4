@@ -1,12 +1,11 @@
 ---
-
 - name: Create ssh config file (or add to an exsting file) to if network mode is NAT
   tags: ssh_copy_id, ssh
   ansible.builtin.blockinfile:
     path: ~/.ssh/config
     backup: true
     create: true
-    mode: '0644'
+    mode: "0644"
     block: |
       Host {{ env.jumphost.name }} 
         HostName {{ env.jumphost.ip }}

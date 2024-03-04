@@ -1,2 +1,2 @@
 ---
-_vm_console: "console=ttyS0,115200n8"
+_vm_console: console=ttyS0,115200n8

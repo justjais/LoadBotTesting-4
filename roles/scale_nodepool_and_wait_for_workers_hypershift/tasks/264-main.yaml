@@ -1,5 +1,4 @@
 ---
-
 - name: Wait for agents to join the cluster
   k8s_info:
     api_version: agent-install.openshift.io/v1beta1
@@ -17,17 +16,19 @@
   set_fact:
     agents: []
 
-- name: Get a List of agents 
+- name: Get a List of agents
   set_fact:
     agents: "{{ agents + [agents_info.stdout.split('\n')[item].split(' ')[0]] }}"
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
- 
+
 - name: Patch Agents
-  shell: oc -n {{ hypershift.hcp.clusters_namespace }}-{{ hypershift.hcp.hosted_cluster_name }}  patch agent {{ agents[item] }} -p '{"spec":{"installation_disk_id":"/dev/vda","approved":true,"hostname":"worker-{{item}}.{{ hypershift.hcp.hosted_cluster_name }}.{{ hypershift.hcp.basedomain }}"}}' --type merge
+  shell: oc -n {{ hypershift.hcp.clusters_namespace }}-{{ hypershift.hcp.hosted_cluster_name }}  patch agent {{ agents[item] }} -p '{"spec":{"installation_disk_id":"/dev/vda","approved":true,"hostname":"worker-{{item}}.{{
+    hypershift.hcp.hosted_cluster_name }}.{{ hypershift.hcp.basedomain }}"}}' --type merge
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
 
-- name: Scale Nodepool 
-  command: oc -n {{ hypershift.hcp.clusters_namespace }} scale nodepool {{ hypershift.hcp.hosted_cluster_name }} --replicas {{ hypershift.agents_parms.agents_count }}
+- name: Scale Nodepool
+  command: oc -n {{ hypershift.hcp.clusters_namespace }} scale nodepool {{ hypershift.hcp.hosted_cluster_name }} --replicas {{ hypershift.agents_parms.agents_count
+    }}
 
 - name: Wait for Agentmachines to create
   k8s_info:
@@ -48,13 +49,14 @@
   delay: 10
 
 - name: Create Kubeconfig for Hosted Cluster
-  shell: hypershift create kubeconfig --namespace {{ hypershift.hcp.clusters_namespace }} --name {{ hypershift.hcp.hosted_cluster_name }} > /root/ansible_workdir/{{ hypershift.hcp.hosted_cluster_name }}-kubeconfig
+  shell: hypershift create kubeconfig --namespace {{ hypershift.hcp.clusters_namespace }} --name {{ hypershift.hcp.hosted_cluster_name }} > /root/ansible_workdir/{{
+    hypershift.hcp.hosted_cluster_name }}-kubeconfig
 
-- name: Wait for Worker Nodes to Join 
+- name: Wait for Worker Nodes to Join
   k8s_info:
     api_version: v1
     kind: Node
-    kubeconfig: "/root/ansible_workdir/{{ hypershift.hcp.hosted_cluster_name }}-kubeconfig"
+    kubeconfig: /root/ansible_workdir/{{ hypershift.hcp.hosted_cluster_name }}-kubeconfig
   register: nodes
   until: nodes.resources | length == {{ hypershift.agents_parms.agents_count }}
   retries: 300
@@ -65,4 +67,4 @@
   register: node_status
   until: node_status.stdout == '0'
   retries: 50
-  delay: 15 
+  delay: 15

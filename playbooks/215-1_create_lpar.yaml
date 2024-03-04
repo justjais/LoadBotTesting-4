@@ -3,7 +3,7 @@
 - hosts: localhost
   tags: create_lpar, create, kvm_host_1
   connection: local
-  vars_files: 
+  vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   tasks:
     - name: Install required python packages.
@@ -13,7 +13,7 @@
         - requests
         - zhmcclient
         - cryptography
-        - packaging 
+        - packaging
         - PyYAML
 
     - name: Include vars for first LPAR if it is to be created.
@@ -25,7 +25,7 @@
       import_role:
         name: create_lpar
       when: env.z.lpar1.create == True
-          
+
 - hosts: localhost
   tags: create_lpar, create, kvm_host_2
   connection: local
@@ -48,7 +48,7 @@
       include_vars:
         file: "{{ inventory_dir }}/host_vars/{{ env.z.lpar3.hostname }}.yaml"
       when: env.z.lpar3.create == True
-      
+
     - name: Create an LPAR for a third KVM host.
       import_role:
         name: create_lpar

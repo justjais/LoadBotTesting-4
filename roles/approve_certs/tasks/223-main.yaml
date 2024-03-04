@@ -1,5 +1,4 @@
 ---
-
 - name: Cancel async 'approve_certs_task', if exists
   tags: approve_certs
   ansible.builtin.async_status:

@@ -30,7 +30,7 @@
               - "Execute: 'ansible-playbook playbooks/add_compute_node.yaml --extra-vars \"@extra-cnode.yml\"'"
         - name: Abort playbook
           ansible.builtin.fail:
-            msg: "See above error!"
+            msg: See above error!
 
     - name: Get RHCOS iso download url from machine-config-operator
       ansible.builtin.shell: |

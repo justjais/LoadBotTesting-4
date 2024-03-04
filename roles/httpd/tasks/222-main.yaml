@@ -1,5 +1,4 @@
 ---
-
 - name: Change permissive domain for httpd
   tags: httpd
   selinux_permissive:
@@ -13,13 +12,13 @@
     proto: tcp
     setype: http_port_t
     state: present
-    reload: yes
+    reload: true
 
 - name: enable httpd
   tags: httpd
   systemd:
     name: httpd
-    enabled: yes
+    enabled: true
 
 - name: restart httpd
   tags: httpd

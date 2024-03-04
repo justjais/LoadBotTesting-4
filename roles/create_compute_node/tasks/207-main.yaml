@@ -1,5 +1,4 @@
 ---
-
 # Paranoia check. This task should be executed only from ONE host
 - name: Check role/task parameters
   tags: create_compute_node
@@ -7,7 +6,7 @@
     msg: "Error: too many hosts defined in ansible play: {{ ansible_play_hosts }}"
   when: ((ansible_play_hosts | length)  > 1)
 
-- name: "If not available, download Red Hat CoreOS rootfs for {{ param_compute_node.host_arch }}"
+- name: If not available, download Red Hat CoreOS rootfs for {{ param_compute_node.host_arch }}
   tags: create_compute_node
   delegate_to: "{{ groups['bastion'][0] }}"
   # Need sudo or root access to write the file
@@ -16,15 +15,15 @@
     - name: Load variables based on target architecture
       ansible.builtin.include_vars: "{{ role_path }}/../common/vars/{{ param_compute_node.host_arch }}/vars.yaml"
 
-    - name: "If not available, download Red Hat CoreOS rootfs file {{ rhcos_live_rootfs }}"
+    - name: If not available, download Red Hat CoreOS rootfs file {{ rhcos_live_rootfs }}
       ansible.builtin.get_url:
         url: "{{ item.baseurl }}{{ item.file }}"
-        dest: "/var/www/html/bin/{{ item.file }}"
+        dest: /var/www/html/bin/{{ item.file }}
         mode: "0644"
       loop:
         - { baseurl: "{{ rhcos_download_url }}", file: "{{ rhcos_live_rootfs }}" }
 
-- name: "Create compute node on KVM host {{ param_compute_node.hostname }}"
+- name: Create compute node on KVM host {{ param_compute_node.hostname }}
   tags: create_compute_node
   delegate_to: "{{ param_compute_node.hostname }}"
   block:
@@ -49,7 +48,7 @@
         - name: Load variables based on architecture
           ansible.builtin.include_vars: "{{ role_path }}/../common/vars/{{ param_compute_node.host_arch }}/vars.yaml"
 
-        - name: "Create compute node VM on {{ param_compute_node.host_arch }}"
+        - name: Create compute node VM on {{ param_compute_node.host_arch }}
           ansible.builtin.shell: |
             CPU_MODEL="--cpu host"
             # CPU host model is not supported on arm64 yet, we need to disable it

@@ -1,5 +1,4 @@
 ---
-
 - name: Start LPAR
   tags: create_kvm_host
   ibm.ibm_zhmc.zhmc_partition:
@@ -15,7 +14,7 @@
       boot_ftp_username: "{{ env.file_server.user }}"
       boot_ftp_password: "{{ env.file_server.pass }}"
       boot_ftp_insfile: "{{ env.file_server.cfgs_dir }}/{{ networking.hostname }}/kvm_host.ins"
-      boot_device: "ftp"
+      boot_device: ftp
     state: active
   register: _create_instances
   async: 600
@@ -27,8 +26,8 @@
     jid: "{{ _create_instances.ansible_job_id }}"
   register: _jobs
   until: _jobs.finished
-  delay: 15  # Check every 15 seconds
-  retries: 40  # Retry up to 40 times
+  delay: 15 # Check every 15 seconds
+  retries: 40 # Retry up to 40 times
 
 #- name: Template hmccreds.yaml for use with os_messages.py
 #  tags: create_kvm_host, test2

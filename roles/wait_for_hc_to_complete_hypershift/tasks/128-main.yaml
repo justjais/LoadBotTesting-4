@@ -1,5 +1,4 @@
 ---
-
 - name: Wait for All Cluster Operators to be available
   shell: oc get co --kubeconfig=/root/ansible_workdir/{{ hypershift.hcp.hosted_cluster_name }}-kubeconfig --no-headers| awk '$3 != "True" {print $1}' | wc -l
   register: co
@@ -32,8 +31,10 @@
 
 - name: Display Login Credentials
   debug:
-    msg: " You can access webconsole of Hosted Cluster here : {{ console_url.stdout }} | Username : 'kubeadmin' Password : {{ cluster_password_decoded.stdout_lines[0] }} "
+    msg: " You can access webconsole of Hosted Cluster here : {{ console_url.stdout }} | Username : 'kubeadmin' Password : {{ cluster_password_decoded.stdout_lines[0]
+      }} "
 
 - name: Display oc login command for CLI
   debug:
-    msg: " You can access the Hosted Cluster using CLI : oc login {{ api_server.stdout_lines[0].split(': ')[-1] }} -u kubeadmin -p {{ cluster_password_decoded.stdout_lines[0] }} "
+    msg: " You can access the Hosted Cluster using CLI : oc login {{ api_server.stdout_lines[0].split(': ')[-1] }} -u kubeadmin -p {{ cluster_password_decoded.stdout_lines[0]
+      }} "

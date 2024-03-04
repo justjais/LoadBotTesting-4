@@ -7,10 +7,10 @@
   tasks:
     - name: Setting host
       set_fact:
-        host: 'kvm_host_hypershift'
+        host: kvm_host_hypershift
     - name: Install Prereqs on host
       import_role:
-        name:  install_prerequisites_host_hypershift
+        name: install_prerequisites_host_hypershift
 
 - name: Create macvtap network
   hosts: kvm_host_hypershift
@@ -20,7 +20,7 @@
       set_fact:
         networking:
           device1: "{{ hypershift.networking_device }}"
-    - name:  Creating macvtap network
+    - name: Creating macvtap network
       import_role:
         name: macvtap
 
@@ -43,12 +43,12 @@
   tasks:
     - name: Setting host
       set_fact:
-        host: 'bastion_hypershift'
-        
+        host: bastion_hypershift
+
     - name: Install Prereqs
       import_role:
         name: install_prerequisites_host_hypershift
-        
+
     - name: Configure Bastion
       import_role:
         name: install_prereqs_bastion_hypershift
@@ -62,18 +62,17 @@
   vars_files:
     - "{{playbook_dir}}/secrets.yaml"
   roles:
-  - install_mce_operator
-  - create_agentserviceconfig_hypershift
-  - create_hcp_InfraEnv_hypershift
+    - install_mce_operator
+    - create_agentserviceconfig_hypershift
+    - create_hcp_InfraEnv_hypershift
 
 - name: Download Required images for booting Agents
   hosts: kvm_host_hypershift
   become: true
   roles:
-  - setup_for_agents_hypershift
+    - setup_for_agents_hypershift
 
 - name: Configure httpd on bastion for hosting rootfs
   hosts: bastion_hypershift
   roles:
-  - download_rootfs_hypershift
-
+    - download_rootfs_hypershift

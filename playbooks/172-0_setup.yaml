@@ -1,5 +1,4 @@
 ---
-
 - hosts: localhost
   tags: localhost
   connection: local
@@ -60,7 +59,7 @@
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
     packages: "{{ env.pkgs.controller }}"
-    ssh_target: [ "{{ env.file_server.ip }}", "{{ env.file_server.user }}", "{{ env.file_server.pass }}", "{{ path_to_key_pair }}" ]
+    ssh_target: ["{{ env.file_server.ip }}", "{{ env.file_server.user }}", "{{ env.file_server.pass }}", "{{ path_to_key_pair }}"]
   roles:
     - install_packages
     - ssh_key_gen

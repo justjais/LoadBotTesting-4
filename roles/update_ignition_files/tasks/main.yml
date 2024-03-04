@@ -1,5 +1,4 @@
 ---
-
 # Ignition file update
 - name: Update master and worker ignition files on bastion host
   # Requires sudo access

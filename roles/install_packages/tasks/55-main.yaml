@@ -10,7 +10,7 @@
   ansible.builtin.package:
     name: "{{ item }}"
     state: latest
-    update_cache: yes
+    update_cache: true
   loop: "{{ packages }}"
   when: ansible_os_family != 'Darwin'
 
