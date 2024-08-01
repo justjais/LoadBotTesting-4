@@ -12,8 +12,8 @@
     path: /var/www/html/bin
     state: directory
     mode: "0755"
-    owner: "root"
-    group: "root"
+    owner: root
+    group: root
 
 - name: Delete OCP download directory for idempotency, because ignition files deprecate after 24 hours.
   tags: get_ocp
@@ -32,7 +32,7 @@
   tags: get_ocp
   get_url:
     url: "{{ rhcos_download_url }}{{ rhcos_live_rootfs }}"
-    dest: "/var/www/html/bin/{{ rhcos_live_rootfs }}"
+    dest: /var/www/html/bin/{{ rhcos_live_rootfs }}
     mode: "0644"
 
 - name: Unzip OCP client and installer
@@ -40,7 +40,7 @@
   ansible.builtin.unarchive:
     src: "{{ item }}"
     dest: /root/ocpinst/
-    remote_src: yes
+    remote_src: true
   loop:
     - "{{ ocp_download_url }}{{ ocp_client_tgz }}"
     - "{{ ocp_download_url }}{{ ocp_install_tgz }}"
@@ -54,7 +54,7 @@
     owner: root
     group: root
     mode: "755"
-    remote_src: yes
+    remote_src: true
   loop:
     - kubectl
     - oc
@@ -67,7 +67,7 @@
   template:
     src: install-config.yaml.j2
     dest: "{{ item }}"
-    force: yes
+    force: true
   loop:
     - /root/ocpinst/install-config.yaml
     - /root/ocpinst/install-config-backup.yaml
@@ -162,7 +162,7 @@
     dest: /home/{{ env.bastion.access.user }}/.kube/config
     owner: "{{ env.bastion.access.user }}"
     group: "{{ env.bastion.access.user }}"
-    remote_src: yes
+    remote_src: true
   when: env.bastion.access.user != "root"
 
 - name: Make kubeconfig admin user's default (for root user).
@@ -172,7 +172,7 @@
     dest: /{{ env.bastion.access.user }}/.kube/config
     owner: "{{ env.bastion.access.user }}"
     group: "{{ env.bastion.access.user }}"
-    remote_src: yes
+    remote_src: true
   when: env.bastion.access.user == "root"
 
 - name: Make kubeconfig root user's default.
@@ -182,7 +182,7 @@
     dest: /root/.kube/config
     owner: root
     group: root
-    remote_src: yes
+    remote_src: true
 
 - name: Create ignition directory in HTTP-accessible directory.
   tags: get_ocp
@@ -197,7 +197,7 @@
   copy:
     src: /root/ocpinst/{{ item }}.ign
     dest: /var/www/html/ignition
-    remote_src: yes
+    remote_src: true
     mode: "775"
     group: root
     owner: root

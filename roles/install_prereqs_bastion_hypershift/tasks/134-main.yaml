@@ -1,128 +1,126 @@
 ---
-
 - name: Install ansible-kubernetes module
-  pip:
+  ansible.builtin.pip:
     name:
-    - kubernetes
-    - openshift
+      - kubernetes
+      - openshift
     extra_args: --ignore-installed PyYAML
 
 - name: Install Packages on bastion
-  package:
+  ansible.builtin.package:
     name: "{{ env.pkgs.bastion }}"
     state: present
 
-# Creating one directory for Storing Files
 - name: Create Work Directory
-  file:
+  ansible.builtin.file:
     path: /root/ansible_workdir
     state: directory
 
 - name: Copy pull secret to ansible_workdir
-  copy:
+  ansible.builtin.copy:
     content: "{{ hypershift.hcp.pull_secret }}"
     dest: /root/ansible_workdir/auth_file
 
 - name: create /etc/haproxy
-  file:
+  ansible.builtin.file:
     path: /etc/haproxy
     state: directory
 
-- name: create /etc/haproxy/haproxy.cfg 
-  template:
+- name: create /etc/haproxy/haproxy.cfg
+  ansible.builtin.template:
     src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
 
-- name: Get the number of Management Cluster Worker Nodes 
-  shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}' | wc -l
+- name: Get the number of Management Cluster Worker Nodes
   register: mgmt_workers_count
   changed_when: false
+  ansible.builtin.shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}' | wc -l
 
-- name: Get the IPs of Management Cluster Workers 
-  shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}' 
+- name: Get the IPs of Management Cluster Workers
   register: mgmt_workers
   changed_when: false
+  ansible.builtin.shell: oc get no -o wide --no-headers|grep -i worker| awk '{print $6}'
 
-- name: Add Management Cluster Worker IPs to Haproxy 
-  lineinfile:
+- name: Add Management Cluster Worker IPs to Haproxy
+  loop: "{{ range(mgmt_workers_count.stdout|int) | list }}"
+  ansible.builtin.lineinfile:
     path: /etc/haproxy/haproxy.cfg
     line: "    server worker-{{item}} {{ mgmt_workers.stdout_lines[item]}}"
-  loop: "{{ range(mgmt_workers_count.stdout|int) | list }}"
- 
-- name: allow http traffic 
-  firewalld:
-    service: http
-    permanent: yes
-    zone: "{{ item }}"
-    state: enabled
-  with_items:
-  - internal
-  - public
 
-- name: allow https traffic 
-  firewalld:
-    service: https
-    permanent: yes
+- name: allow http traffic
+  with_items:
+    - internal
+    - public
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
     zone: "{{ item }}"
     state: enabled
+
+- name: allow https traffic
   with_items:
-  - internal
-  - public
+    - internal
+    - public
+  ansible.posix.firewalld:
+    service: https
+    permanent: true
+    zone: "{{ item }}"
+    state: enabled
 
 - name: allow traffic at port 443
-  firewalld:
+  with_items:
+    - internal
+    - public
+  ansible.posix.firewalld:
     port: 443/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
-  with_items:
-  - internal
-  - public
 
-- name: allow traffic at port 80 
-  firewalld:
+- name: allow traffic at port 80
+  with_items:
+    - internal
+    - public
+  ansible.posix.firewalld:
     port: 80/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
-  with_items:
-  - internal
-  - public
 
-- name: allow traffic at port 6443 
-  firewalld:
+- name: allow traffic at port 6443
+  with_items:
+    - internal
+    - public
+  ansible.posix.firewalld:
     port: 6443/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
-  with_items:
-  - internal
-  - public
 
-- name: allow traffic at ports 30000-33000 
-  firewalld:
+- name: allow traffic at ports 30000-33000
+  with_items:
+    - internal
+    - public
+  ansible.posix.firewalld:
     port: 30000-33000/tcp
-    permanent: yes
+    permanent: true
     zone: "{{ item }}"
     state: enabled
-  with_items:
-  - internal
-  - public
 
-- name: turn on haproxy_connect_any 
-  ansible.posix.seboolean: 
+- name: turn on haproxy_connect_any
+  ansible.posix.seboolean:
     name: haproxy_connect_any
     persistent: true
     state: true
 
-- name: restart haproxy 
-  service:
+- name: restart haproxy
+  ansible.builtin.service:
     name: haproxy.service
     state: restarted
     enabled: true
 
 - name: Restart firewalld.service
-  service:
+  ansible.builtin.service:
     name: firewalld.service
     state: restarted
     enabled: true

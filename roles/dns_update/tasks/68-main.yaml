@@ -1,5 +1,4 @@
 ---
-
 - name: Load DNS update task
   ansible.builtin.include_tasks: "{{ param_dns_cmd }}.yaml"
 

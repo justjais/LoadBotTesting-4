@@ -1,6 +1,4 @@
-# Use this if you want to re-install nodes with a new OCP version
 ---
-
 - name: Re-Install cluster - Copy SSH key from localhost to access bastion
   hosts: localhost
   tags: ssh, ssh_copy_id, section_1
@@ -8,7 +6,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}","{{ path_to_key_pair }}"]
+    ssh_target: ["{{ env.bastion.networking.ip }}", "{{ env.bastion.access.user }}", "{{ env.bastion.access.pass }}", "{{ path_to_key_pair }}"]
   roles:
     - ssh_copy_id
 
@@ -21,7 +19,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: ["{{ env.z.lpar1.ip }}","{{ env.z.lpar1.user }}","{{ env.z.lpar1.pass }}","{{ path_to_key_pair }}"]
+    ssh_target: ["{{ env.z.lpar1.ip }}", "{{ env.z.lpar1.user }}", "{{ env.z.lpar1.pass }}", "{{ path_to_key_pair }}"]
   tasks:
     - name: Include vars for the KVM host
       ansible.builtin.include_vars:
@@ -40,7 +38,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: ["{{ env.z.lpar2.ip }}","{{ env.z.lpar2.user }}","{{ env.z.lpar2.pass }}","{{ path_to_key_pair }}"]
+    ssh_target: ["{{ env.z.lpar2.ip }}", "{{ env.z.lpar2.user }}", "{{ env.z.lpar2.pass }}", "{{ path_to_key_pair }}"]
   tasks:
     - name: Include vars for second KVM host
       ansible.builtin.include_vars:
@@ -61,7 +59,7 @@
   vars_files:
     - "{{ inventory_dir }}/group_vars/all.yaml"
   vars:
-    ssh_target: [" {{ env.z.lpar3.ip }}","{{ env.z.lpar3.user }}","{{ env.z.lpar3.pass }}","{{ path_to_key_pair }}" ]
+    ssh_target: [" {{ env.z.lpar3.ip }}", "{{ env.z.lpar3.user }}", "{{ env.z.lpar3.pass }}", "{{ path_to_key_pair }}"]
   tasks:
     - name: Include vars for third KVM host
       ansible.builtin.include_vars:
@@ -72,15 +70,3 @@
       ansible.builtin.import_role:
         name: ssh_copy_id
       when: env.z.lpar3.hostname is defined
-
-- name: Re-Install cluster - Update ignitions and other install files
-  hosts: bastion
-  become: true
-  vars_files:
-    - "{{ inventory_dir }}/group_vars/all.yaml"
-  roles:
-    - common
-    - get_ocp
-
-- import_playbook: 6_create_nodes.yaml
-- import_playbook: 7_ocp_verification.yaml

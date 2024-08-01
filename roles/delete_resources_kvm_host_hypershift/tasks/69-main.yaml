@@ -1,25 +1,24 @@
 ---
-
 - name: Destroy Agent VMs
-  command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }} 
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
+  ansible.builtin.command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }}
 
 - name: Undefine Agents
-  command: virsh undefine {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }} --remove-all-storage
   loop: "{{ range(hypershift.agents_parms.agents_count|int) | list }}"
+  ansible.builtin.command: virsh undefine {{ hypershift.hcp.hosted_cluster_name }}-agent-{{ item }} --remove-all-storage
 
 - name: Delete  initrd.img
-  file:
+  ansible.builtin.file:
     path: /var/lib/libvirt/images/pxeboot/initrd.img
     state: absent
 
 - name: Delete  kernel.img
-  file:
+  ansible.builtin.file:
     path: /var/lib/libvirt/images/pxeboot/kernel.img
     state: absent
 
 - name: Destroy bastion
-  command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-bastion
+  ansible.builtin.command: virsh destroy {{ hypershift.hcp.hosted_cluster_name }}-bastion
 
 - name: Undefine bastion
-  command: virsh undefine {{ hypershift.hcp.hosted_cluster_name }}-bastion --remove-all-storage
+  ansible.builtin.command: virsh undefine {{ hypershift.hcp.hosted_cluster_name }}-bastion --remove-all-storage

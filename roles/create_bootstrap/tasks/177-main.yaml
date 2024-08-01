@@ -1,6 +1,6 @@
 ---
-
 # Always creates a new bootstrap VM
+
 - name: Start bootstrap installation
   tags: create_bootstrap
   ansible.builtin.shell: |

@@ -1,13 +1,13 @@
 ---
-
 # Paranoia check. This task should be executed only from ONE host
+
 - name: Check role/task parameters
   tags: create_compute_node
   ansible.builtin.fail:
     msg: "Error: too many hosts defined in ansible play: {{ ansible_play_hosts }}"
   when: ((ansible_play_hosts | length)  > 1)
 
-- name: "If not available, download Red Hat CoreOS rootfs for {{ param_compute_node.host_arch }}"
+- name: If not available, download Red Hat CoreOS rootfs for {{ param_compute_node.host_arch }}
   tags: create_compute_node
   delegate_to: "{{ groups['bastion'][0] }}"
   # Need sudo or root access to write the file
@@ -16,15 +16,15 @@
     - name: Load variables based on target architecture
       ansible.builtin.include_vars: "{{ role_path }}/../common/vars/{{ param_compute_node.host_arch }}/vars.yaml"
 
-    - name: "If not available, download Red Hat CoreOS rootfs file {{ rhcos_live_rootfs }}"
+    - name: If not available, download Red Hat CoreOS rootfs file {{ rhcos_live_rootfs }}
       ansible.builtin.get_url:
         url: "{{ item.baseurl }}{{ item.file }}"
-        dest: "/var/www/html/bin/{{ item.file }}"
+        dest: /var/www/html/bin/{{ item.file }}
         mode: "0644"
       loop:
         - { baseurl: "{{ rhcos_download_url }}", file: "{{ rhcos_live_rootfs }}" }
 
-- name: "Create compute node on KVM host {{ param_compute_node.hostname }}"
+- name: Create compute node on KVM host {{ param_compute_node.hostname }}
   tags: create_compute_node
   delegate_to: "{{ param_compute_node.hostname }}"
   block:
@@ -39,7 +39,7 @@
         - name: Get virsh list
           community.libvirt.virt:
             command: list_vms
-          register: cmd_virsh_list
+
         - name: Print virsh list
           ansible.builtin.debug:
             var: cmd_virsh_list
@@ -49,7 +49,7 @@
         - name: Load variables based on architecture
           ansible.builtin.include_vars: "{{ role_path }}/../common/vars/{{ param_compute_node.host_arch }}/vars.yaml"
 
-        - name: "Create compute node VM on {{ param_compute_node.host_arch }}"
+        - name: Create compute node VM on {{ param_compute_node.host_arch }}
           ansible.builtin.shell: |
             CPU_MODEL="--cpu host"
             # CPU host model is not supported on arm64 yet, we need to disable it
@@ -74,7 +74,7 @@
             coreos.live.rootfs_url=http://{{ env.bastion.networking.ip }}:8080/bin/{{ rhcos_live_rootfs }} \
             coreos.inst.ignition_url=http://{{ env.bastion.networking.ip }}:8080/ignition/worker.ign {{ _vm_console }}"
           timeout: 300
-          register: cmd_output
+
         - name: Debug, print above command output
           ansible.builtin.debug:
             var: cmd_output

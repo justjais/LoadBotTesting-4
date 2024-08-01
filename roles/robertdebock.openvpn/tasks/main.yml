@@ -1,10 +1,13 @@
 ---
 # tasks file for openvpn
-
 - name: import assert.yml
   ansible.builtin.import_tasks: assert.yml
-  run_once: True
+  run_once: true
   delegate_to: localhost
+
+- name: test if openvpn_role is set correctly
+
+- name: test if openvpn_client_server is set correctly
 
 - name: install openvpn packages
   ansible.builtin.package:
@@ -19,4 +22,4 @@
   ansible.builtin.service:
     name: "{{ openvpn_service }}"
     state: started
-    enabled: yes
+    enabled: true

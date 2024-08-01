@@ -1,3 +1,4 @@
+---
 - name: Template out bastion's resolv.conf file for initial installation.
   tags: resolv
   ansible.builtin.template:
@@ -7,7 +8,6 @@
     group: root
     mode: "644"
 
-# NetworkManager modifies our /etc/resolv.conf file on next restart or reboot, we need to disable it
 - name: Disable management of /etc/resolv.conf by NetworkManager
   tags: resolv
   ansible.builtin.copy:

@@ -1,14 +1,13 @@
 ---
-
 - name: Wait for cluster operators
   tags: wait_for_cluster_operators
   ansible.builtin.include_tasks: check_co.yaml
   with_items:
-    - "First"
-    - "Second"
-    - "Third"
-    - "Fourth"
-    - "Fifth and last"
+    - First
+    - Second
+    - Third
+    - Fourth
+    - Fifth and last
   loop_control:
     loop_var: loop_count
 

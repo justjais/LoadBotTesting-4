@@ -1,5 +1,6 @@
 ---
 # Paranoia check. This task should be executed only from one host
+
 - name: Check parameters
   ansible.builtin.fail:
     msg: "Too many hosts defined in ansible play: {{ ansible_play_hosts }}"

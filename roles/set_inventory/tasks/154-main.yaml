@@ -1,45 +1,41 @@
 ---
-
 - name: Find inventory directory from ansible.cfg
   tags: set_inventory
-  shell: cat {{ ansible_config_file }} | grep 'inventory=' | cut -f2 -d"="
   register: find_inventory
+  ansible.builtin.shell: cat {{ ansible_config_file }} | grep 'inventory=' | cut -f2 -d"="
 
 - name: Find absolute path to project.
   tags: set_inventory
-  shell: |
-    ansible_config="{{ ansible_config_file }}"
-    echo "${ansible_config%/*}/"
   register: find_project
+  ansible.builtin.shell:
 
 - name: Fail if network_mode is NAT and jumphost vars are undefined.
   tags: set_inventory
-  fail:
+  when: ( env.network_mode | upper == 'NAT' ) and (env.jumphost.name is none or env.jumphost.ip is none or env.jumphost.user is none or env.jumphost.pass is none
+    or env.jumphost.path_to_keypair is none)
+  ansible.builtin.fail:
     msg: "Error jumphost vars undefined: when env.network_mode is NAT, you must set all env.jumphost variables."
-  when: ( env.network_mode | upper == 'NAT' ) and (env.jumphost.name is none or env.jumphost.ip is none or env.jumphost.user is none or env.jumphost.pass is none or env.jumphost.path_to_keypair is none)
 
 - name: Template out inventory with localhost, file server, KVM host, jumphost(optional) and bastion information
   tags: set_inventory
-  template:
+  ansible.builtin.template:
     src: hosts.j2
     dest: "{{ find_project.stdout }}{{ find_inventory.stdout }}/hosts"
-    force: yes
-
-- meta: refresh_inventory
+    force: true
 
 - name: Add path to Ansible private key in ansible.cfg
   tags: set_inventory
-  lineinfile:
-    line: "private_key_file=~/.ssh/{{ env.ansible_key_name }}"
+  ansible.builtin.lineinfile:
+    line: private_key_file=~/.ssh/{{ env.ansible_key_name }}
     path: "{{ ansible_config_file }}"
-    regexp: "private_key_file"
+    regexp: private_key_file
     state: present
 
 - name: check inventory setup
   tags: set_inventory
-  command: ansible-inventory --list
   register: inv_check
   failed_when: inv_check.rc != 0
+  ansible.builtin.command: ansible-inventory --list
 
 - name: Gather facts to re-read inventory after changes made to inventory
   tags: set_inventory
@@ -47,4 +43,4 @@
 
 - name: Refresh inventory
   tags: set_inventory
-  meta: refresh_inventory
+  ansible.builtin.meta: refresh_inventory
